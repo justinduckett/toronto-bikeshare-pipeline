@@ -1,0 +1,30 @@
+name: Daily Bike Share Data Pipeline
+
+on:
+  schedule:
+    # Runs at 6:00 AM UTC every day
+    - cron: '0 6 * * *'
+  workflow_dispatch: # This line lets you click a "Run Now" button to test it
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run pipeline script
+        env:
+          # This passes the secret key from GitHub to your Python script
+          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        run: python main.py
