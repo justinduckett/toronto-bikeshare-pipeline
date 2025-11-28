@@ -5,46 +5,57 @@ from google.oauth2 import service_account
 import os
 
 # --- CONFIGURATION ---
-PROJECT_ID = "toronto-bikeshare-analytics"
+PROJECT_ID = "toronto-bikeshare-analytics" 
 DATASET_ID = "bike_data"
 TABLE_ID = "status_history"
 
 def run_pipeline():
-    # 1. Fetch Data
-    url = "https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_status.json"
-    print("Fetching data...")
-    response = requests.get(url)
+    # 1. Fetch "Status" (Dynamic: How many bikes?)
+    print("Fetching station status...")
+    status_url = "https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_status.json"
+    status_resp = requests.get(status_url).json()
+    status_df = pd.DataFrame(status_resp['data']['stations'])
     
-    # 2. Process Data
-    data = response.json()['data']['stations']
-    df = pd.DataFrame(data)
-    df['snapshot_time'] = datetime.now()
+    # 2. Fetch "Information" (Static: Where is it?)
+    print("Fetching station info...")
+    info_url = "https://tor.publicbikesystem.net/ube/gbfs/v1/en/station_information.json"
+    info_resp = requests.get(info_url).json()
+    info_df = pd.DataFrame(info_resp['data']['stations'])
     
-    # 3. Clean Types
-    df['station_id'] = df['station_id'].astype(str)
-    df['num_bikes_available'] = df['num_bikes_available'].astype(int)
-    df['num_docks_available'] = df['num_docks_available'].astype(int)
+    # 3. Merge them together (Enrichment)
+    # We join on 'station_id' to add Name, Lat, and Lon to our counts
+    print("Merging data...")
+    # Keep only the columns we need from the info file
+    info_clean = info_df[['station_id', 'name', 'lat', 'lon']]
+    
+    # Merge: effectively SQL LEFT JOIN
+    final_df = status_df.merge(info_clean, on='station_id', how='left')
+    
+    # 4. Add Timestamp & Clean Types
+    final_df['snapshot_time'] = datetime.now()
+    final_df['station_id'] = final_df['station_id'].astype(str)
+    final_df['num_bikes_available'] = final_df['num_bikes_available'].astype(int)
+    final_df['num_docks_available'] = final_df['num_docks_available'].astype(int)
+    final_df['lat'] = final_df['lat'].astype(float)
+    final_df['lon'] = final_df['lon'].astype(float)
 
-    # 4. Authenticate & Upload
-    # We use a special trick here to read the key from GitHub's secret vault
-    # If we are local, we use the file. If on GitHub, we uses the Environment Variable.
+    # 5. Authenticate & Upload
     if os.path.exists("gcp_key.json"):
         credentials = service_account.Credentials.from_service_account_file("gcp_key.json")
     else:
-        # This part runs on GitHub
         print("Using GitHub Secrets...")
-        # We will set this up in the next step
         import json
         key_info = json.loads(os.environ["GCP_SERVICE_ACCOUNT_KEY"])
         credentials = service_account.Credentials.from_service_account_info(key_info)
 
     print("Uploading to BigQuery...")
-    df.to_gbq(destination_table=f"{DATASET_ID}.{TABLE_ID}",
+    # We stick to the same table. BigQuery handles the new columns automatically!
+    final_df.to_gbq(destination_table=f"{DATASET_ID}.{TABLE_ID}",
               project_id=PROJECT_ID,
               if_exists='append',
               credentials=credentials)
     
-    print("Success! Data saved.")
+    print(f"Success! Uploaded {len(final_df)} rows with Location Data.")
 
 if __name__ == "__main__":
     run_pipeline()
