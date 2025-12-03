@@ -3,7 +3,7 @@ name: Daily Bike Share Data Pipeline
 on:
   schedule:
     # Runs at the start of every hour (00:00, 01:00, etc.)
-    - cron: '5 * * * *'
+    - cron: '22 * * * *'
   workflow_dispatch: # This line lets you click a "Run Now" button to test it
 
 jobs:
