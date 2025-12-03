@@ -32,7 +32,8 @@ def run_pipeline():
     final_df = status_df.merge(info_clean, on='station_id', how='left')
     
     # 4. Add Timestamp & Clean Types
-    final_df['snapshot_time'] = datetime.now()
+    now = datetime.now()
+    final_df['snapshot_time'] = now.replace(minute=0, second=0, microsecond=0)
     final_df['station_id'] = final_df['station_id'].astype(str)
     final_df['num_bikes_available'] = final_df['num_bikes_available'].astype(int)
     final_df['num_docks_available'] = final_df['num_docks_available'].astype(int)
@@ -58,4 +59,5 @@ def run_pipeline():
     print(f"Success! Uploaded {len(final_df)} rows with Location Data.")
 
 if __name__ == "__main__":
+
     run_pipeline()
