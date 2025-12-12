@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import pandas_gbq
 from datetime import datetime
 from google.oauth2 import service_account
 import os
@@ -51,8 +52,8 @@ def run_pipeline():
 
     print("Uploading to BigQuery...")
     # We stick to the same table. BigQuery handles the new columns automatically!
-    final_df.to_gbq(destination_table=f"{DATASET_ID}.{TABLE_ID}",
-              project_id=PROJECT_ID,
+    pandas_gbq.to_gbq(final_df, destination_table=f"{DATASET_ID}.{TABLE_ID}", 
+              project_id=PROJECT_ID, 
               if_exists='append',
               credentials=credentials)
     
