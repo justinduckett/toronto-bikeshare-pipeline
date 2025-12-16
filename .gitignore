@@ -6,3 +6,7 @@ __pycache__/
 # SENSITIVE KEYS
 *.json
 gcp_key.json
+
+# dbt logs folder
+logs/
+target/
