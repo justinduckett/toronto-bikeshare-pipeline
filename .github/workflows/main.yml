@@ -28,3 +28,37 @@ jobs:
           # This passes the secret key from GitHub to your Python script
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
         run: python main.py
+
+      # ... (Your existing python step is above this) ...
+
+      - name: Run dbt transformation
+        env:
+          # Get the secret key again
+          GCP_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        run: |
+          # 1. Install dbt (if not already in requirements.txt)
+          pip install dbt-bigquery
+
+          # 2. Create the key file from your Secret
+          echo "$GCP_KEY" > dbt-key.json
+
+          # 3. Create a temporary profiles.yml 
+          # This tells dbt to look for 'dbt-key.json' right here
+          echo "
+          toronto_bikeshare:
+            target: prod
+            outputs:
+              prod:
+                type: bigquery
+                method: service-account
+                project: toronto-bikeshare-analytics
+                dataset: bike_data_dbt
+                threads: 1
+                keyfile: dbt-key.json
+                location: US
+          " > profiles.yml
+
+          # 4. Run dbt
+          cd transform
+          dbt deps
+          dbt run --profiles-dir ..
