@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: raw_data
+    database: toronto-bikeshare-analytics  # Your GCP Project ID
+    schema: bike_data                      # Your existing BigQuery Dataset
+    tables:
+      - name: status_history              # The table your Python script populates
