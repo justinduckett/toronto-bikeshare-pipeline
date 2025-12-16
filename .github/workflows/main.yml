@@ -33,17 +33,18 @@ jobs:
 
       - name: Run dbt transformation
         env:
-          # Get the secret key again
           GCP_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
         run: |
-          # 1. Install dbt (if not already in requirements.txt)
           pip install dbt-bigquery
-
-          # 2. Create the key file from your Secret
+          
+          # 1. Move into the directory FIRST
+          cd transform
+          
+          # 2. Create the key file INSIDE this folder
           echo "$GCP_KEY" > dbt-key.json
-
-          # 3. Create a temporary profiles.yml 
-          # This tells dbt to look for 'dbt-key.json' right here
+          
+          # 3. Create the profile INSIDE this folder
+          # Note: We are ensuring the profile name is 'transform' to match your project
           echo "
           transform:
             target: prod
@@ -57,8 +58,8 @@ jobs:
                 keyfile: dbt-key.json
                 location: US
           " > profiles.yml
-
+          
           # 4. Run dbt
-          cd transform
+          # We use '.' to tell dbt "look for profiles.yml right here in this folder"
           dbt deps
-          dbt run --profiles-dir ..
+          dbt run --profiles-dir .
