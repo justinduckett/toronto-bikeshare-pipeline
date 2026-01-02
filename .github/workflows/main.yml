@@ -63,3 +63,7 @@ jobs:
           # We use '.' to tell dbt "look for profiles.yml right here in this folder"
           dbt deps
           dbt run --profiles-dir .
+
+          # 5. Run Tests (This is the new part)
+          # If this fails, the pipeline stops here and alerts you
+          dbt test --profiles-dir .
