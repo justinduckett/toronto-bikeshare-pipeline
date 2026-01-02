@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: active_fleet_size
+    description: "Calculates the total number of bikes available across the entire network at each hourly snapshot."
+    columns:
+      - name: snapshot_time
+        description: "The hour the data was captured."
+        tests:
+          - not_null  # Test: This column can never be empty
+          - unique    # Test: You can't have two rows for the same hour
+      - name: total_fleet_size
+        description: "Sum of all available bikes."
+        tests:
+          - not_null
+
+  - name: network_health_histogram
+    description: "Categorizes stations based on their reliability (stockout rate)."
+    columns:
+      - name: name
+        description: "Name of the station."
+        tests:
+          - not_null
+          - unique
+      - name: reliability_bucket
+        description: "Category: Critical, Warning, or Healthy."
+        tests:
+          - accepted_values: # Test: The value MUST be one of these three
+              values: ['Always empty', '90% - 99% (Critical)', '80% - 90%', '70% - 80%', '60% - 70%', '50% - 60%', '40% - 50%', '30% - 40%', '20% - 30%', '10% - 20%', '1% - 10%', '0%']

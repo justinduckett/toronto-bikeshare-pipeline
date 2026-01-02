@@ -7,6 +7,7 @@ WITH station_stats AS (
     AVG(CASE WHEN num_bikes_available = 0 THEN 1.0 ELSE 0.0 END) as stockout_rate
   FROM
     {{ source('raw_data', 'status_history') }}
+  WHERE name IS NOT NULL  -- <--- ADD THIS LINE
   GROUP BY
     name
 )
