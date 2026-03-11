@@ -3,7 +3,7 @@ name: Daily Bike Share Data Pipeline
 on:
   schedule:
     # Runs at the start of every hour (00:00, 01:00, etc.)
-    - cron: '22 * * * *'
+    - cron: "22 * * * *"
   workflow_dispatch: # This line lets you click a "Run Now" button to test it
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -28,42 +28,3 @@ jobs:
           # This passes the secret key from GitHub to your Python script
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
         run: python main.py
-
-      # ... (Your existing python step is above this) ...
-
-      - name: Run dbt transformation
-        env:
-          GCP_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-        run: |
-          pip install dbt-bigquery
-          
-          # 1. Move into the directory FIRST
-          cd transform
-          
-          # 2. Create the key file INSIDE this folder
-          echo "$GCP_KEY" > dbt-key.json
-          
-          # 3. Create the profile INSIDE this folder
-          # Note: We are ensuring the profile name is 'transform' to match your project
-          echo "
-          transform:
-            target: prod
-            outputs:
-              prod:
-                type: bigquery
-                method: service-account
-                project: toronto-bikeshare-analytics
-                dataset: bike_data_dbt
-                threads: 1
-                keyfile: dbt-key.json
-                location: US
-          " > profiles.yml
-          
-          # 4. Run dbt
-          # We use '.' to tell dbt "look for profiles.yml right here in this folder"
-          dbt deps
-          dbt run --profiles-dir .
-
-          # 5. Run Tests (This is the new part)
-          # If this fails, the pipeline stops here and alerts you
-          dbt test --profiles-dir .
