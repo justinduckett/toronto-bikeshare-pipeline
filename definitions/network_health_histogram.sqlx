@@ -21,8 +21,17 @@ WITH station_stats AS (
 SELECT 
   *,
   CASE 
-    WHEN stockout_rate > 0.9 THEN 'Critical'
-    WHEN stockout_rate > 0.5 THEN 'Warning'
-    ELSE 'Healthy'
+    WHEN stockout_rate = 0 THEN '0%'
+    WHEN stockout_rate > 0 AND stockout_rate <= 0.10 THEN '1% - 10%'
+    WHEN stockout_rate > 0.10 AND stockout_rate <= 0.20 THEN '10% - 20%'
+    WHEN stockout_rate > 0.20 AND stockout_rate <= 0.30 THEN '20% - 30%'
+    WHEN stockout_rate > 0.30 AND stockout_rate <= 0.40 THEN '30% - 40%'
+    WHEN stockout_rate > 0.40 AND stockout_rate <= 0.50 THEN '40% - 50%'
+    WHEN stockout_rate > 0.50 AND stockout_rate <= 0.60 THEN '50% - 60%'
+    WHEN stockout_rate > 0.60 AND stockout_rate <= 0.70 THEN '60% - 70%'
+    WHEN stockout_rate > 0.70 AND stockout_rate <= 0.80 THEN '70% - 80%'
+    WHEN stockout_rate > 0.80 AND stockout_rate <= 0.90 THEN '80% - 90%'
+    WHEN stockout_rate > 0.90 AND stockout_rate < 1.0 THEN '90% - 99% (Critical)'
+    WHEN stockout_rate = 1.0 THEN 'Always empty'
   END as reliability_bucket
 FROM station_stats
