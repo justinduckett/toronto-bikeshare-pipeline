@@ -1,0 +1,4 @@
+defaultProject: toronto-bikeshare-analytics
+defaultDataset: bike_data_dataform  # This is where your NEW tables will be created
+defaultLocation: US                 # This MUST match your BigQuery "US" location
+defaultAssertionDataset: bike_data_assertions # This is where your tests results live

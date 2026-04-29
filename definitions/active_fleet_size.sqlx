@@ -1,0 +1,16 @@
+config {
+  type: "table",
+  description: "Calculates the total number of bikes available across the entire network at each hourly snapshot.",
+  assertions: {
+    uniqueKey: ["snapshot_time"],
+    nonNull: ["snapshot_time", "total_fleet_size"]
+  }
+}
+
+SELECT
+  snapshot_time,
+  sum(num_bikes_available) as total_fleet_size
+FROM
+  ${ref("status_history")}
+GROUP BY
+  1

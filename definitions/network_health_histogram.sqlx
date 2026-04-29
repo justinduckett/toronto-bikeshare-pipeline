@@ -1,0 +1,28 @@
+config {
+  type: "table",
+  description: "Categorizes stations based on their reliability (stockout rate). Filters out inactive 'Zombie' stations.",
+  assertions: {
+    uniqueKey: ["name"],
+    nonNull: ["name"]
+  }
+}
+
+WITH station_stats AS (
+  SELECT
+    name,
+    AVG(CASE WHEN num_bikes_available = 0 THEN 1.0 ELSE 0.0 END) as stockout_rate
+  FROM
+    ${ref("status_history")}
+  WHERE name IS NOT NULL
+  GROUP BY
+    name
+)
+
+SELECT 
+  *,
+  CASE 
+    WHEN stockout_rate > 0.9 THEN 'Critical'
+    WHEN stockout_rate > 0.5 THEN 'Warning'
+    ELSE 'Healthy'
+  END as reliability_bucket
+FROM station_stats

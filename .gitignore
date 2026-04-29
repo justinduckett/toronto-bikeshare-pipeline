@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+node_modules/
+=======
 venv/
 __pycache__/
 .DS_Store
@@ -10,3 +13,4 @@ gcp_key.json
 # dbt logs folder
 logs/
 target/
+>>>>>>> refs/heads/main
