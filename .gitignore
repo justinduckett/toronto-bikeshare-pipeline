@@ -7,7 +7,6 @@ __pycache__/
 .env
 
 # SENSITIVE KEYS
-*.json
 gcp_key.json
 
 # dbt logs folder
