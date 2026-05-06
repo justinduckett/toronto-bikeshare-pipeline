@@ -4,7 +4,7 @@ This repository hosts a fully automated, serverless ELT pipeline that captures r
 
 It demonstrates a modern Analytics Engineering workflow: ingesting raw API data via Python, warehousing it in Google BigQuery, and using Google Cloud Dataform to transform raw records into clean, business-ready data models for visualization.
 
-View the Live Dashboard: [Link to Looker Studio Report](https://lookerstudio.google.com/reporting/ee66c00f-c017-4a8d-9249-72a67b1ba3a6)
+View the Live Dashboard: <a href="https://lookerstudio.google.com/reporting/ee66c00f-c017-4a8d-9249-72a67b1ba3a6" target="_blank">Link to Looker Studio Report</a>
 
 ## How It Works
 
