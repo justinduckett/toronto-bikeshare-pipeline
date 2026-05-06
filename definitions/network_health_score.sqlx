@@ -1,0 +1,15 @@
+config {
+  type: "table",
+  description: "Calculates the overall network health percentage.",
+  assertions: {
+    nonNull: ["network_health_score"]
+  }
+}
+
+SELECT
+  snapshot_time,
+  (COUNTIF(num_bikes_available > 0) / COUNT(*)) * 100 as network_health_score
+FROM
+  ${ref("status_history")}
+GROUP BY
+  snapshot_time

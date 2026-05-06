@@ -1,0 +1,36 @@
+config {
+  type: "table",
+  description: "Provides the latest availability and color buckets for map visualization.",
+  assertions: {
+    uniqueKey: ["station_id"],
+    nonNull: ["station_id", "name"]
+  }
+}
+
+WITH latest_station_data AS (
+  SELECT
+    station_id,
+    name,
+    lat,
+    lon,
+    num_bikes_available as avg_bikes,
+    (num_bikes_available + num_docks_available) as total_capacity
+  FROM
+    ${ref("status_history")}
+  QUALIFY ROW_NUMBER() OVER (PARTITION BY station_id ORDER BY snapshot_time DESC) = 1
+)
+
+SELECT
+  station_id,
+  name,
+  lat,
+  lon,
+  avg_bikes,
+  total_capacity,
+  CASE
+    WHEN avg_bikes < 1 THEN 'Critical (Red)'
+    WHEN avg_bikes <= 3 THEN 'Low (Yellow)'
+    ELSE 'Good (Green)'
+  END as availability_bucket
+FROM
+  latest_station_data
