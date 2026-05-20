@@ -43,9 +43,9 @@ This pipeline is built on the modern ELT (Extract, Load, Transform) paradigm. It
 
 Instead of writing complex SQL directly in the dashboard, we use .sqlx files in Dataform to create modular, reusable tables:
 
-- active_fleet_size: Tracks the total number of bikes available across the city over time.
-- network_health_histogram: Identifies "Zombie Stations" that remain empty for long periods, highlighting rebalancing challenges.
-- map_colour_grouping: Prepares geographic data for high-performance mapping in Looker Studio.
+- `active_fleet_size`: Tracks the total number of bikes available across the city over time.
+- `network_health_histogram`: Identifies "Zombie Stations" that remain empty for long periods, highlighting rebalancing challenges.
+- `map_colour_grouping`: Prepares geographic data for high-performance mapping in Looker Studio.
 
 ## Key Features
 
