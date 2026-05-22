@@ -16,7 +16,7 @@ This pipeline is built on the modern ELT (Extract, Load, Transform) paradigm. It
 
 2\. Data Ingestion
 
-- A Python script authenticates with the API, extracts the live JSON data, converts it into tabular formats using Pandas, and batch-loads it into the cloud.
+- A custom Python script extracts the live JSON data and formats it into Pandas dataframes. The code is version-controlled in GitHub, but execution is handled serverlessly by Google Cloud Run Functions. This provides a highly reliable, zero-maintenance cloud environment that eliminates third-party queue wait times.
 
 3\. Cloud Storage (Data Warehouse)
 
@@ -27,14 +27,16 @@ This pipeline is built on the modern ELT (Extract, Load, Transform) paradigm. It
 
 5\. Orchestration & Scheduling
 
-- Rather than deploying a complex orchestrator like Airflow, this project utilizes a lightweight, serverless scheduling approach:
-  - GitHub Actions runs a cron job every 4 hours to execute the Python ingestion script.
-  - Dataform’s built-in scheduler runs independently to update the transformation models once the new data has landed.
+- A 100% serverless, Google-native scheduling architecture:
+  - Google Cloud Scheduler strictly enforces a 4-hour cron SLA to wake up and trigger the Cloud Run Function ingestion.
+
+  - Dataform’s native scheduler runs the SQL transformations immediately after, ensuring the dashboard is always powered by fresh, modeled data.
 
 ## Tech Stack
 
 - **Python (Requests, Pandas):** Handles data ingestion by authenticating with the API, extracting live JSON payloads, and converting them into structured dataframes.
-- **GitHub Actions:** Acts as a lightweight, serverless scheduler that automatically triggers the Python ingestion script every 4 hours.
+- **Google Cloud Run Functions:** Acts as the serverless compute engine, providing a reliable, scalable environment for the Python ingestion logic.
+- **Google Cloud Scheduler:** The centralized "alarm clock" that triggers the ingestion pipeline on a precise 4-hour cadence.
 - **Google BigQuery:** Serves as the highly scalable cloud data warehouse, acting as the centralized storage for both the raw historical data and the final analytics tables.
 - **Google Cloud Dataform:** Powers the data transformation layer using version-controlled SQL (.sqlx) to clean, filter, and model the raw staging data into optimized tables.
 - **Looker Studio:** Delivers the presentation layer, connecting directly to BigQuery to visualize the clean data via interactive dashboards and spatial maps.
