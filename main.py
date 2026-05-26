@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import pandas_gbq
 from datetime import datetime
+from zoneinfo import ZoneInfo  # <-- NEW: Imports standard timezone library
 
 # --- CONFIGURATION ---
 PROJECT_ID = "toronto-bikeshare-analytics"
@@ -27,9 +28,14 @@ def main(request):
     info_clean = info_df[['station_id', 'name', 'lat', 'lon']]
     final_df = status_df.merge(info_clean, on='station_id', how='left')
 
-    # 4. Add Timestamp & Clean Types
-    now = datetime.now()
-    final_df['snapshot_time'] = now.replace(minute=0, second=0, microsecond=0)
+    # 4. Add Timestamp & Clean Types (UPDATED FOR TORONTO TIME)
+    toronto_tz = ZoneInfo("America/Toronto")
+    now = datetime.now(toronto_tz)
+
+    # We strip the timezone info (tzinfo=None) so BigQuery stores the literal Toronto hour
+    naive_now = now.replace(tzinfo=None, minute=0, second=0, microsecond=0)
+    final_df['snapshot_time'] = naive_now
+
     final_df['station_id'] = final_df['station_id'].astype(str)
     final_df['num_bikes_available'] = final_df['num_bikes_available'].astype(
         int)
@@ -45,5 +51,4 @@ def main(request):
                       if_exists='append')
 
     print(f"Success! Uploaded {len(final_df)} rows with Location Data.")
-
     return "Pipeline executed successfully!"
