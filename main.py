@@ -28,19 +28,19 @@ def main(request):
     info_clean = info_df[['station_id', 'name', 'lat', 'lon']]
     final_df = status_df.merge(info_clean, on='station_id', how='left')
 
-    # 4. Add Timestamp & Clean Types (UPDATED FOR TORONTO TIME)
+    # 4. Add Timestamp & Clean Types (FIXED FOR DOUBLE-SHIFT)
     toronto_tz = ZoneInfo("America/Toronto")
     now = datetime.now(toronto_tz)
 
-    # We strip the timezone info (tzinfo=None) so BigQuery stores the literal Toronto hour
-    naive_now = now.replace(tzinfo=None, minute=0, second=0, microsecond=0)
-    final_df['snapshot_time'] = naive_now
+    # Grab the exact hour, but KEEP the timezone attached
+    current_hour = now.replace(minute=0, second=0, microsecond=0)
+    
+    # Convert it to a Pandas UTC timestamp so BigQuery understands it globally
+    final_df['snapshot_time'] = pd.to_datetime(current_hour, utc=True)
 
     final_df['station_id'] = final_df['station_id'].astype(str)
-    final_df['num_bikes_available'] = final_df['num_bikes_available'].astype(
-        int)
-    final_df['num_docks_available'] = final_df['num_docks_available'].astype(
-        int)
+    final_df['num_bikes_available'] = final_df['num_bikes_available'].astype(int)
+    final_df['num_docks_available'] = final_df['num_docks_available'].astype(int)
     final_df['lat'] = final_df['lat'].astype(float)
     final_df['lon'] = final_df['lon'].astype(float)
 
