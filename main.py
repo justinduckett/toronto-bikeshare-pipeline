@@ -1,8 +1,6 @@
 import requests
 import pandas as pd
 import pandas_gbq
-from datetime import datetime
-from zoneinfo import ZoneInfo  # <-- NEW: Imports standard timezone library
 
 # --- CONFIGURATION ---
 PROJECT_ID = "toronto-bikeshare-analytics"
@@ -28,15 +26,10 @@ def main(request):
     info_clean = info_df[['station_id', 'name', 'lat', 'lon']]
     final_df = status_df.merge(info_clean, on='station_id', how='left')
 
-    # 4. Add Timestamp & Clean Types (FIXED FOR DOUBLE-SHIFT)
-    toronto_tz = ZoneInfo("America/Toronto")
-    now = datetime.now(toronto_tz)
-
-    # Grab the exact hour, but KEEP the timezone attached
-    current_hour = now.replace(minute=0, second=0, microsecond=0)
-    
-    # Convert it to a Pandas UTC timestamp so BigQuery understands it globally
-    final_df['snapshot_time'] = pd.to_datetime(current_hour, utc=True)
+    # 4. Add Timestamp & Clean Types
+    # Store the feed's own report time as a clean UTC instant.
+    # All local time conversion happens later, in SQL.
+    final_df['snapshot_time'] = pd.to_datetime(status_resp['last_updated'], unit='s', utc=True)
 
     final_df['station_id'] = final_df['station_id'].astype(str)
     final_df['num_bikes_available'] = final_df['num_bikes_available'].astype(int)
