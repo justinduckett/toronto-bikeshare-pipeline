@@ -1,0 +1,16 @@
+config {
+  type: "table",
+  description: "status_history with the correct Toronto local hour for time of day charts"
+}
+
+SELECT
+  station_id,
+  name,
+  num_bikes_available,
+  num_docks_available,
+  lat,
+  lon,
+  snapshot_time,
+  EXTRACT(HOUR FROM snapshot_time AT TIME ZONE 'America/Toronto') AS hour_toronto
+FROM
+  ${ref("status_history")}
