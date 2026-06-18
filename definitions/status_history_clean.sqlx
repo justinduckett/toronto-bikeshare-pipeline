@@ -11,6 +11,6 @@ SELECT
   lat,
   lon,
   snapshot_time,
-  EXTRACT(HOUR FROM snapshot_time AT TIME ZONE 'America/Toronto') AS hour_toronto
+  EXTRACT(HOUR FROM TIMESTAMP(snapshot_time, 'UTC') AT TIME ZONE 'America/Toronto') AS hour_toronto
 FROM
   ${ref("status_history")}
