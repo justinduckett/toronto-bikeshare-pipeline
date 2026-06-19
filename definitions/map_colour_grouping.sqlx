@@ -13,7 +13,7 @@ WITH latest_station_data AS (
     name,
     lat,
     lon,
-    num_bikes_available as avg_bikes,
+    num_bikes_available as current_bikes,
     (num_bikes_available + num_docks_available) as total_capacity
   FROM
     ${ref("status_history")}
@@ -25,11 +25,11 @@ SELECT
   name,
   lat,
   lon,
-  avg_bikes,
+  current_bikes,
   total_capacity,
   CASE
-    WHEN avg_bikes < 1 THEN 'Critical (Red)'
-    WHEN avg_bikes <= 3 THEN 'Low (Yellow)'
+    WHEN current_bikes < 1 THEN 'Critical (Red)'
+    WHEN current_bikes <= 3 THEN 'Low (Yellow)'
     ELSE 'Good (Green)'
   END as availability_bucket
 FROM
