@@ -1,0 +1,9 @@
+config {
+  type: "table",
+  description: "Single-row table holding the most recent snapshot time, for a 'last updated' label."
+}
+
+SELECT
+  MAX(DATETIME(TIMESTAMP(snapshot_time, 'UTC'), 'America/Toronto')) AS last_updated_toronto
+FROM
+  ${ref("status_history")}

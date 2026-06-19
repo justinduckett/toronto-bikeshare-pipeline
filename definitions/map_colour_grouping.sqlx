@@ -28,9 +28,9 @@ SELECT
   current_bikes,
   total_capacity,
   CASE
-    WHEN current_bikes < 1 THEN 'Critical (Red)'
-    WHEN current_bikes <= 3 THEN 'Low (Yellow)'
-    ELSE 'Good (Green)'
+    WHEN current_bikes < 1 THEN 'Empty'
+    WHEN current_bikes <= 3 THEN 'Low'
+    ELSE 'Good'
   END as availability_bucket
 FROM
   latest_station_data
